@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Node / misc
+node_modules/
+dist/
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Docker
+*.tar
+*.img
+
+# HA addon build leftovers
+*/.venv/
+*/__pycache__/
