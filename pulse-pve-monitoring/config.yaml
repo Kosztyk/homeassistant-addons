@@ -1,14 +1,19 @@
 name: "Pulse PVE Monitoring"
-version: "0.1.0"
 slug: "pulse_pve_monitoring"
-description: "Run the Pulse PVE monitoring server inside Home Assistant."
+version: "1.0.0"
+description: "Pulse monitoring server (Proxmox + Docker) running as a Home Assistant add-on."
 url: "https://github.com/rcourtman/Pulse"
+
 arch:
   - amd64
   - aarch64
+
 startup: services
 boot: auto
 init: false
+
+ingress: false
+host_network: false
 
 ports:
   "7655/tcp": 7655
@@ -18,12 +23,8 @@ ports_description:
 map:
   - data:rw
 
-schema:
-  log_level: list(debug|info|warning|error)?
-  pulse_data_dir: str?
-
 options:
-  log_level: info
-  pulse_data_dir: "/data"
+  log_level: "info"
 
-image: ""
+schema:
+  log_level: list(info|debug|warn|error)
