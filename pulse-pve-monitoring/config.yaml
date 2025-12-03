@@ -1,7 +1,7 @@
 name: "Pulse PVE Monitoring"
 version: "0.1.0"
 slug: "pulse_pve_monitoring"
-description: "Run the Pulse PVE / host monitoring server inside Home Assistant."
+description: "Run the Pulse PVE monitoring server inside Home Assistant."
 url: "https://github.com/rcourtman/Pulse"
 arch:
   - amd64
@@ -10,16 +10,21 @@ arch:
 startup: services
 boot: auto
 init: false
+
 ports:
   "7655/tcp": 7655
 ports_description:
-  "7655/tcp": "Pulse web UI and API"
+  "7655/tcp": "Pulse web UI & API"
+
 map:
-  - addon_config:rw
+  - data:rw
+
 schema:
   log_level: list(debug|info|warning|error)?
   pulse_data_dir: str?
+
 options:
   log_level: info
   pulse_data_dir: "/data"
+
 image: ""
