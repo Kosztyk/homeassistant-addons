@@ -141,4 +141,4 @@ For example:
 
 This project is an **unofficial** Home Assistant add-on for the Pulse monitoring system.  
 Please use at your own risk and always back up your Home Assistant configuration.
-<img width="1536" height="1024" alt="ChatGPT Image Dec 3, 2025, 04_44_11 PM" src="https://github.com/user-attachments/assets/54b521e9-4910-4b81-ad08-6dfe34f441ae" />
+
