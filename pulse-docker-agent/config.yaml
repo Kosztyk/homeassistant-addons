@@ -1,0 +1,31 @@
+name: "Pulse Docker Agent"
+slug: "pulse_docker_agent"
+version: "1.0.0"
+description: "Pulse Docker monitoring agent for the Home Assistant Docker engine"
+url: "https://github.com/rcourtman/Pulse"
+
+arch:
+  - amd64
+  - aarch64
+
+startup: services
+init: false
+docker_api: true
+host_network: true
+ingress: false
+
+options:
+  pulse_url: ""
+  api_token: ""
+  interval: "30s"
+  log_level: "info"
+  agent_version: "4.36.1"
+  extra_targets: ""
+
+schema:
+  pulse_url: str
+  api_token: str
+  interval: str
+  log_level: list(info|debug|warn|error)
+  agent_version: str
+  extra_targets: str
