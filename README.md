@@ -26,4 +26,4 @@ Agent for [Pulse](https://github.com/rcourtman/Pulse) monitoring (PVE / Docker /
 3. Add:
 
    ```text
-   https://github.com/<your-username>/homeassistant-addons
+   https://github.com/Kosztyk/homeassistant-addons
