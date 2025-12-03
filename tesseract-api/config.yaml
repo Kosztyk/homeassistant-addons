@@ -1,0 +1,26 @@
+name: "Tesseract OCR API"
+slug: "tesseract_api"
+description: "Local FastAPI-based Tesseract OCR API (digits-focused) for Home Assistant."
+version: "1.0.0"
+url: "https://github.com/Kosztyk/tesseract-api-addon"
+arch:
+  - amd64
+  - aarch64
+  - armv7
+  - armhf
+  - i386
+
+startup: services
+boot: auto
+init: false
+
+# Expose port 8000 so HA or other containers can call it
+ports:
+  8000/tcp: 8000
+
+# No options for now; the app is self-contained
+options: {}
+schema: {}
+
+# Optional nice icon (change to whatever you want)
+panel_icon: "mdi:text-recognition"
