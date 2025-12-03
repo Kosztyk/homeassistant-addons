@@ -6,7 +6,6 @@ url: "https://github.com/rcourtman/Pulse"
 arch:
   - amd64
   - aarch64
-  - armv7
 startup: services
 boot: auto
 init: false
