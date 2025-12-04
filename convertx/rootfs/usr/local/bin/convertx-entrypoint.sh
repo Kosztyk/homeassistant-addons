@@ -3,7 +3,24 @@ set -e
 
 OPTIONS_FILE="/data/options.json"
 
-# Defaults – same as config.yaml
+# Make sure /data exists and /app/data points to it (persistent storage)
+mkdir -p /data
+if [ ! -L /app/data ]; then
+  # If /app/data exists as a dir or file, remove it and replace with symlink
+  if [ -d /app/data ] || [ -f /app/data ]; then
+    rm -rf /app/data
+  fi
+  ln -s /data /app/data
+fi
+
+# Try to fix permissions so ConvertX can write its SQLite DB
+# (equivalent to "chown -R $USER:$USER path" from README)
+# We don't know the exact user ConvertX runs as, so:
+#  - first try chown to a common non-root UID (1000)
+#  - if that fails, fall back to chmod 777 (this is a homelab-only box anyway)
+chown -R 1000:1000 /data 2>/dev/null || chmod -R 777 /data || true
+
+# Defaults – same as in config.yaml
 JWT_SECRET_DEFAULT="CHANGE_ME_TO_LONG_RANDOM_STRING"
 HTTP_ALLOWED_DEFAULT="true"
 TZ_DEFAULT="Europe/Bucharest"
@@ -55,10 +72,11 @@ echo "  AUTO_DELETE_EVERY_N_HOURS=$AUTO_DELETE"
 echo "  CLAMAV_URL=$CLAMAV_URL"
 echo "  TZ=$TZ_VAL"
 echo "  JWT_SECRET length=${#JWT_SECRET}"
+echo "  /data permissions:"
+ls -ld /data || true
 echo "==========================="
 
-# Very important: call the *original* ConvertX docker-entrypoint
-# so the app behaves exactly like in your working Docker setup.
+# Call the original ConvertX entrypoint, so behaviour matches your Docker setup
 if command -v docker-entrypoint.sh >/dev/null 2>&1; then
   exec docker-entrypoint.sh "$@"
 elif [ -x /usr/local/bin/docker-entrypoint.sh ]; then
