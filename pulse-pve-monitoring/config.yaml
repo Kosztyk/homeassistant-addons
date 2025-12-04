@@ -1,6 +1,6 @@
 name: "Pulse PVE Monitoring"
 slug: "pulse_pve_monitoring"
-version: "1.0.2"
+version: "latest"
 description: "Pulse monitoring server (Proxmox + Docker) running as a Home Assistant add-on."
 url: "https://github.com/rcourtman/Pulse"
 
