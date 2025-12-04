@@ -1,14 +1,10 @@
-# If you want to use your custom image with ClamAV support:
-# ARG BUILD_FROM=kosztyk/convertx-clamav:user
-# FROM ${BUILD_FROM}
-
-# Using upstream ConvertX image by default:
-ARG BUILD_FROM=ghcr.io/c4illin/convertx:latest
+# Build our add-on image on top of your working image
+ARG BUILD_FROM=kosztyk/convertx-clamav:user
 FROM ${BUILD_FROM}
 
 USER root
 
-# Install jq to parse /data/options.json in the entrypoint (works on Alpine/Debian/RHEL-ish)
+# Install jq so we can parse /data/options.json
 RUN if command -v apk >/dev/null 2>&1; then \
       apk add --no-cache jq; \
     elif command -v apt-get >/dev/null 2>&1; then \
@@ -19,9 +15,18 @@ RUN if command -v apk >/dev/null 2>&1; then \
       echo "WARN: could not detect package manager to install jq" >&2; \
     fi
 
+# /data is the persistent HA add-on volume.
+# ConvertX expects /app/data, so we map that path to /data transparently.
+RUN mkdir -p /data && \
+    if [ -d /app/data ] || [ -L /app/data ]; then rm -rf /app/data; fi && \
+    ln -s /data /app/data
+
+# Our own entrypoint wrapper
 COPY rootfs/ /
 
 RUN chmod +x /usr/local/bin/convertx-entrypoint.sh
 
-# Keep the original CMD from the base image, only override ENTRYPOINT.
+# IMPORTANT:
+# - ConvertX image uses its own docker-entrypoint.sh internally.
+# - We *call it explicitly* so behavior matches "plain Docker"
 ENTRYPOINT ["/usr/local/bin/convertx-entrypoint.sh"]
