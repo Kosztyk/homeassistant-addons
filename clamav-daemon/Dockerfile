@@ -1,5 +1,4 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
-FROM ${BUILD_FROM}
+FROM alpine:3.20
 
 # Run as root so we can read /data/options.json and manage ClamAV dirs
 USER root
@@ -15,4 +14,5 @@ WORKDIR /tmp
 
 EXPOSE 3310
 
+# PID 1 is our script, no s6-overlay involved
 CMD ["/usr/local/bin/run.sh"]
