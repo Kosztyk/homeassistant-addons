@@ -16,7 +16,7 @@ webui: "http://[HOST]:[PORT:3000]/"
 image: "kosztyk/convertx-clamav"
 
 options:
-  jwt_secret: "1FloareA1"
+  jwt_secret: "xxxxxxx"
   http_allowed: true
   tz: "Europe/Bucharest"
   auto_delete_hours: 720
