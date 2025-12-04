@@ -1,5 +1,5 @@
 name: "ClamAV REST API"
-version: "0.1.0"
+version: "0.1.1"  # bump this to force HA to see a new version
 slug: "clamav_rest_api"
 description: "REST API that scans files using a remote ClamAV daemon (clamd)."
 url: "https://github.com/benzino77/clamav-rest-api"
@@ -18,7 +18,6 @@ ports:
 ports_description:
   "3000/tcp": "ClamAV REST API HTTP port"
 
-# just in case you ever want to write logs or temp data
 map:
   - config:ro
   - share:rw
@@ -38,7 +37,6 @@ schema:
   app_form_key: str
   app_max_file_size: int
 
-# static envs; dynamic ones will be set by run.sh reading /data/options.json
 environment:
   NODE_ENV: "production"
   APP_PORT: "3000"
