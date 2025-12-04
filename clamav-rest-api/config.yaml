@@ -1,0 +1,33 @@
+name: "ClamAV REST API"
+version: "0.1.0"
+slug: "clamav_rest_api"
+description: "REST API service that scans files using a remote ClamAV daemon."
+url: "https://github.com/benzino77/clamav-rest-api"
+arch:
+  - amd64
+  - arm64
+init: false
+startup: services
+boot: auto
+hassio_api: false
+hassio_role: default
+homeassistant_api: false
+ingress: false
+panel_icon: "mdi:virus"
+panel_title: "ClamAV API"
+ports:
+  "3000/tcp": 3000
+ports_description:
+  "3000/tcp": "ClamAV REST API HTTP port"
+options:
+  clamd_ip: "192.168.68.73"
+  clamd_port: 3310
+  app_form_key: "FILES"
+  app_max_file_size: 262144000
+schema:
+  clamd_ip: str
+  clamd_port: int
+  app_form_key: str
+  app_max_file_size: int
+environment:
+  NODE_ENV: "production"
