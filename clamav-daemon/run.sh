@@ -1,51 +1,46 @@
-#!/usr/bin/with-contenv bashio
-# shellcheck shell=bash
-
+#!/usr/bin/env bash
 set -e
 
-bashio::log.info "Starting ClamAV Daemon add-on"
+log() {
+  echo "[clamav-daemon addon] $*"
+}
 
-# -------------------------------------------------------------------
-# Read configuration from /data/options.json
-# -------------------------------------------------------------------
-LISTEN_IP="$(bashio::config 'listen_ip')"
-LISTEN_PORT="$(bashio::config 'listen_port')"
-MAX_FILE_SIZE_MB="$(bashio::config 'max_file_size_mb')"
-STREAM_MAX_LENGTH_MB="$(bashio::config 'stream_max_length_mb')"
+CONFIG_FILE="/data/options.json"
 
-if bashio::config.is_empty 'listen_ip'; then
-    bashio::log.warning "listen_ip not set, defaulting to 0.0.0.0"
-    LISTEN_IP="0.0.0.0"
+# Defaults
+LISTEN_IP_DEFAULT="0.0.0.0"
+LISTEN_PORT_DEFAULT=3310
+MAX_FILE_SIZE_MB_DEFAULT=250
+STREAM_MAX_LENGTH_MB_DEFAULT=250
+
+log "Starting ClamAV Daemon add-on"
+
+# --------------------------- Read config ----------------------------
+if [ -f "$CONFIG_FILE" ]; then
+  log "Reading options from ${CONFIG_FILE}"
+
+  LISTEN_IP=$(jq -r '.listen_ip // empty' "$CONFIG_FILE")
+  LISTEN_PORT=$(jq -r '.listen_port // empty' "$CONFIG_FILE")
+  MAX_FILE_SIZE_MB=$(jq -r '.max_file_size_mb // empty' "$CONFIG_FILE")
+  STREAM_MAX_LENGTH_MB=$(jq -r '.stream_max_length_mb // empty' "$CONFIG_FILE")
+else
+  log "WARNING: ${CONFIG_FILE} not found, using defaults."
 fi
 
-if bashio::config.is_empty 'listen_port'; then
-    bashio::log.warning "listen_port not set, defaulting to 3310"
-    LISTEN_PORT=3310
-fi
+LISTEN_IP="${LISTEN_IP:-$LISTEN_IP_DEFAULT}"
+LISTEN_PORT="${LISTEN_PORT:-$LISTEN_PORT_DEFAULT}"
+MAX_FILE_SIZE_MB="${MAX_FILE_SIZE_MB:-$MAX_FILE_SIZE_MB_DEFAULT}"
+STREAM_MAX_LENGTH_MB="${STREAM_MAX_LENGTH_MB:-$STREAM_MAX_LENGTH_MB_DEFAULT}"
 
-if bashio::config.is_empty 'max_file_size_mb'; then
-    bashio::log.warning "max_file_size_mb not set, defaulting to 250"
-    MAX_FILE_SIZE_MB=250
-fi
+log "listen_ip=${LISTEN_IP}, listen_port=${LISTEN_PORT}"
+log "MaxFileSize=${MAX_FILE_SIZE_MB}M, StreamMaxLength=${STREAM_MAX_LENGTH_MB}M"
 
-if bashio::config.is_empty 'stream_max_length_mb'; then
-    bashio::log.warning "stream_max_length_mb not set, defaulting to 250"
-    STREAM_MAX_LENGTH_MB=250
-fi
-
-bashio::log.info "Configured listen_ip=${LISTEN_IP}, listen_port=${LISTEN_PORT}"
-bashio::log.info "MaxFileSize=${MAX_FILE_SIZE_MB}M, StreamMaxLength=${STREAM_MAX_LENGTH_MB}M"
-
-# -------------------------------------------------------------------
-# Prepare directories
-# -------------------------------------------------------------------
+# --------------------------- Prep dirs ------------------------------
 mkdir -p /var/lib/clamav /var/log/clamav /run/clamav
 chown -R root:root /var/lib/clamav /var/log/clamav /run/clamav
 
-# -------------------------------------------------------------------
-# Write clamd.conf based on our options
-# -------------------------------------------------------------------
-bashio::log.info "Writing /etc/clamav/clamd.conf"
+# --------------------------- clamd.conf -----------------------------
+log "Writing /etc/clamav/clamd.conf"
 
 cat <<EOF > /etc/clamav/clamd.conf
 LogTime yes
@@ -66,16 +61,12 @@ MaxFileSize ${MAX_FILE_SIZE_MB}M
 Foreground yes
 EOF
 
-# -------------------------------------------------------------------
-# Update virus database (freshclam)
-# -------------------------------------------------------------------
-bashio::log.info "Updating ClamAV database with freshclam (may be rate-limited)..."
+# --------------------------- freshclam ------------------------------
+log "Updating ClamAV database with freshclam (may be rate-limited)..."
 if ! freshclam; then
-    bashio::log.warning "freshclam failed (possibly rate-limited). Using existing database if present."
+  log "WARNING: freshclam failed (possibly rate-limited). Using existing DB if present."
 fi
 
-# -------------------------------------------------------------------
-# Start clamd in foreground
-# -------------------------------------------------------------------
-bashio::log.info "Starting clamd on ${LISTEN_IP}:${LISTEN_PORT}"
+# --------------------------- start clamd ----------------------------
+log "Starting clamd on ${LISTEN_IP}:${LISTEN_PORT}"
 exec clamd -c /etc/clamav/clamd.conf
