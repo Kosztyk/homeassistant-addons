@@ -13,7 +13,7 @@ ports_description:
   "3000/tcp": "ConvertX Web UI"
 webui: "http://[HOST]:[PORT:3000]/"
 # Use your own registry naming convention here if you want
-image: "kosztyk/{arch}-addon-convertx"
+image: "kosztyk/convertx-clamav"
 
 options:
   jwt_secret: "1FloareA1"
