@@ -1,6 +1,6 @@
 name: "ConvertX"
 slug: "convertx"
-version: "0.1.0"
+version: "user"
 description: "ConvertX file converter with ClamAV API integration"
 arch:
   - amd64
