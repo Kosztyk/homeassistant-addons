@@ -10,7 +10,7 @@ boot: auto
 
 # Home Assistant will build an image from Dockerfile
 # and tag it like kosztyk/amd64-addon-convertx:0.2.0
-image: "kosztyk/convertx-user"
+image: "kosztyk/convertx-clamav"
 
 # No ingress, we go direct via host:port (simplest & safest for auth)
 ingress: false
