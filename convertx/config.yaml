@@ -1,40 +1,30 @@
 name: "ConvertX"
-version: "user"  # this will be used as the Docker image tag
 slug: "convertx"
-description: "ConvertX + ClamAV: document conversion UI with antivirus scanning."
+version: "0.1.0"
+description: "ConvertX file converter with ClamAV API integration"
 arch:
   - amd64
   - aarch64
-
-# IMPORTANT: no tag here, just the repo
-image: "kosztyk/convertx-clamav"
-
 startup: application
 boot: auto
-
 ports:
   "3000/tcp": 8080
-
 ports_description:
-  "3000/tcp": "ConvertX web UI (mapped to 8080 on the host)"
-
-ingress: true
-ingress_port: 3000
+  "3000/tcp": "ConvertX Web UI"
 webui: "http://[HOST]:[PORT:3000]/"
+# Use your own registry naming convention here if you want
+image: "kosztyk/{arch}-addon-convertx"
 
-legacy: true
+options:
+  jwt_secret: "1FloareA1"
+  http_allowed: true
+  tz: "Europe/Bucharest"
+  auto_delete_hours: 720
+  clamav_url: "http://192.168.68.144:3000/api/v1/scan"
 
-map:
-  - type: data
-    path: /app/data
-    read_only: false
-
-environment:
-  JWT_SECRET: "1FloareA1"
-  HTTP_ALLOWED: "true"
-  TZ: "Europe/Bucharest"
-  AUTO_DELETE_EVERY_N_HOURS: "720"
-  CLAMAV_URL: "http://192.168.68.144:3000/api/v1/scan"
-
-options: {}
-schema: {}
+schema:
+  jwt_secret: str
+  http_allowed: bool
+  tz: str
+  auto_delete_hours: int
+  clamav_url: str
