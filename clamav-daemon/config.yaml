@@ -1,5 +1,5 @@
 name: "ClamAV Daemon"
-version: "0.1.1"
+version: "0.1.2"
 slug: "clamav_daemon"
 description: "ClamAV daemon (clamd) TCP service on port 3310."
 url: "https://www.clamav.net/"
