@@ -18,6 +18,7 @@ ports:
 ports_description:
   "3000/tcp": "ClamAV REST API HTTP port"
 
+# just in case you ever want to write logs or temp data
 map:
   - config:ro
   - share:rw
@@ -37,5 +38,7 @@ schema:
   app_form_key: str
   app_max_file_size: int
 
+# static envs; dynamic ones will be set by run.sh reading /data/options.json
 environment:
   NODE_ENV: "production"
+  APP_PORT: "3000"
