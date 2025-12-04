@@ -1,46 +1,40 @@
 name: "ConvertX"
-version: "user"  # must match the Docker tag you use
+version: "user"  # this will be used as the Docker image tag
 slug: "convertx"
 description: "ConvertX + ClamAV: document conversion UI with antivirus scanning."
 arch:
   - amd64
   - aarch64
 
-# Use your existing Docker image
-image: "kosztyk/convertx-clamav:user"
+# IMPORTANT: no tag here, just the repo
+image: "kosztyk/convertx-clamav"
 
 startup: application
 boot: auto
 
-# Expose the web interface on your HA host
 ports:
   "3000/tcp": 8080
 
 ports_description:
   "3000/tcp": "ConvertX web UI (mapped to 8080 on the host)"
 
-# Optional: Ingress so you can open it directly inside HA
 ingress: true
 ingress_port: 3000
 webui: "http://[HOST]:[PORT:3000]/"
 
-# Make Supervisor treat this as a legacy image (no hass.io labels in your image)
 legacy: true
 
-# Map HA's persistent data directory into /app/data inside the container
 map:
   - type: data
     path: /app/data
     read_only: false
 
-# Environment variables – mirrors your docker-compose
 environment:
-  JWT_SECRET: "1FloareA1"             # will use randomUUID() if unset in the app
-  HTTP_ALLOWED: "true"                # allow http access
+  JWT_SECRET: "1FloareA1"
+  HTTP_ALLOWED: "true"
   TZ: "Europe/Bucharest"
   AUTO_DELETE_EVERY_N_HOURS: "720"
   CLAMAV_URL: "http://192.168.68.144:3000/api/v1/scan"
 
-# No user-configurable options in the UI (you can edit config.yaml directly)
 options: {}
 schema: {}
