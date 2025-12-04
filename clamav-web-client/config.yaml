@@ -1,15 +1,21 @@
 name: "ClamAV Web Client"
 slug: "clamav_web_client"
-version: "0.1.3"
+version: "0.2.0"
 description: "Web UI client for ClamAV, connecting to an existing clamd service."
 url: "https://hub.docker.com/r/rguziy/clamav-web-client"
 
 arch:
   - amd64
+  - aarch64
+
+# Use upstream image directly (no Dockerfile, no build)
+# NOTE: no :latest tag here – HA's regex doesn't allow tags in this field.
+image: "rguziy/clamav-web-client"
 
 startup: "services"
 boot: "auto"
 
+# Container listens on 8080, we expose it as 8082 on the host
 webui: "http://[HOST]:[PORT:8080]/"
 
 ports:
@@ -20,9 +26,11 @@ ports_description:
 hassio_api: false
 homeassistant_api: false
 
+# These can be edited later from the Supervisor > Add-on > Configuration (YAML editor)
 environment:
-  CLAMAV_HOST: "192.168.68.73"
+  CLAMAV_HOST: "172.0.0.1"
   CLAMAV_PORT: "3310"
 
+# No structured GUI “form” – you edit the YAML directly in HA
 options: {}
 schema: {}
