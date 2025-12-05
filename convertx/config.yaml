@@ -8,11 +8,10 @@ arch:
 startup: application
 boot: auto
 
-# Home Assistant will build an image from Dockerfile
-# and tag it like kosztyk/amd64-addon-convertx:0.2.0
+# Build our own add-on image based on your ConvertX image
 image: "kosztyk/convertx-clamav"
 
-# No ingress, we go direct via host:port (simplest & safest for auth)
+# No ingress, use direct http://HA-IP:8080
 ingress: false
 
 ports:
@@ -22,20 +21,25 @@ ports_description:
 
 webui: "http://[HOST]:[PORT:3000]/"
 
-# Use /data as persistent storage and point ConvertX to it via symlink
-# (we handle the /app/data ↔ /data mapping in Dockerfile)
-# /data is always available to add-ons, no explicit map needed.
+# Map Home Assistant's persistent data *directly* to /app/data
+# This is where ConvertX stores its SQLite database.
+map:
+  - type: data
+    read_only: false
+    path: /app/data
 
 options:
-  jwt_secret: "CHANGE_ME_TO_LONG_RANDOM_STRING"
+  # Leave empty by default, you set this in the GUI
+  jwt_secret: ""
   http_allowed: true
   tz: "Europe/Bucharest"
   auto_delete_hours: 720
   clamav_url: "http://172.0.0.1:3000/api/v1/scan"
   account_registration: true
-  allow_unauthenticated: true
+  allow_unauthenticated: false
+
 schema:
-  jwt_secret: str
+  jwt_secret: "str?"
   http_allowed: bool
   tz: str
   auto_delete_hours: int
