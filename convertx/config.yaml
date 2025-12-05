@@ -8,7 +8,6 @@
   "boot": "auto",
   "image": "kosztyk/convertx-clamav",
   "ingress": false,
-  "host_network": false,
   "ports": {
     "3000/tcp": 8080
   },
@@ -19,20 +18,32 @@
   "map": ["data:rw"],
   "options": {
     "jwt_secret": "",
-    "http_allowed": true,
-    "tz": "Europe/Bucharest",
-    "auto_delete_hours": 720,
+    "account_registration": false,
+    "http_allowed": false,
+    "allow_unauthenticated": false,
+    "auto_delete_hours": 24,
+    "webroot": "",
+    "ffmpeg_args": "",
+    "hide_history": false,
+    "language": "en",
+    "unauthenticated_user_sharing": false,
+    "max_convert_process": 0,
     "clamav_url": "http://172.0.0.1:3000/api/v1/scan",
-    "account_registration": true,
-    "allow_unauthenticated": true
+    "tz": "Europe/Bucharest"
   },
   "schema": {
     "jwt_secret": "str?",
-    "http_allowed": "bool",
-    "tz": "str",
-    "auto_delete_hours": "int",
-    "clamav_url": "str",
     "account_registration": "bool",
-    "allow_unauthenticated": "bool"
+    "http_allowed": "bool",
+    "allow_unauthenticated": "bool",
+    "auto_delete_hours": "int",
+    "webroot": "str?",
+    "ffmpeg_args": "str?",
+    "hide_history": "bool",
+    "language": "str?",
+    "unauthenticated_user_sharing": "bool",
+    "max_convert_process": "int",
+    "clamav_url": "str",
+    "tz": "str"
   }
 }
