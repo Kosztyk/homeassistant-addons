@@ -15,10 +15,10 @@
     "3000/tcp": "ConvertX Web UI"
   },
   "webui": "http://[HOST]:[PORT:3000]",
-  "map": ["addons/convertx:rw"],
+  "map": ["data:rw"],  // Changed from "addons/convertx:rw" to "data:rw"
   "options": {
     "jwt_secret": "",
-    "account_registration": false,
+    "account_registration": true,  // Changed to true for first run
     "http_allowed": false,
     "allow_unauthenticated": false,
     "auto_delete_hours": 24,
