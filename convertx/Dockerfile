@@ -4,7 +4,7 @@ FROM ${BUILD_FROM}
 
 USER root
 
-# Install jq so we can parse /data/options.json
+# Install jq so we can parse options.json
 RUN if command -v apk >/dev/null 2>&1; then \
       apk add --no-cache jq; \
     elif command -v apt-get >/dev/null 2>&1; then \
@@ -15,18 +15,10 @@ RUN if command -v apk >/dev/null 2>&1; then \
       echo "WARN: could not detect package manager to install jq" >&2; \
     fi
 
-# /data is the persistent HA add-on volume.
-# ConvertX expects /app/data, so we map that path to /data transparently.
-RUN mkdir -p /data && \
-    if [ -d /app/data ] || [ -L /app/data ]; then rm -rf /app/data; fi && \
-    ln -s /data /app/data
-
-# Our own entrypoint wrapper
+# Our entrypoint wrapper
 COPY rootfs/ /
 
 RUN chmod +x /usr/local/bin/convertx-entrypoint.sh
 
-# IMPORTANT:
-# - ConvertX image uses its own docker-entrypoint.sh internally.
-# - We *call it explicitly* so behavior matches "plain Docker"
+# IMPORTANT: We call the original docker-entrypoint.sh from the base image
 ENTRYPOINT ["/usr/local/bin/convertx-entrypoint.sh"]
