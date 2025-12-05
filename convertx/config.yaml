@@ -29,7 +29,8 @@
     "unauthenticated_user_sharing": false,
     "max_convert_process": 0,
     "clamav_url": "http://172.0.0.1:3000/api/v1/scan",
-    "tz": "Europe/Bucharest"
+    "tz": "Europe/Bucharest",
+    "NODE_ENV": "production"
   },
   "schema": {
     "jwt_secret": "str?",
