@@ -111,8 +111,8 @@ else
     if [ ! -x "${AGENT_BIN}" ]; then
         bashio::log.info "Agent binary not found, downloading latest from Pulse server..."
         
-        # Pulse server provides binaries at /download/pulse-agent-linux-<arch>
-        DOWNLOAD_URL="${PULSE_URL}/download/pulse-agent-linux-${ARCH}"
+        # Pulse server provides binaries via /download/pulse-agent?arch=linux-<arch>
+        DOWNLOAD_URL="${PULSE_URL}/download/pulse-agent?arch=linux-${ARCH}"
         
         bashio::log.info "Downloading from: ${DOWNLOAD_URL}"
         if ! curl -fsSL -H "Authorization: Bearer ${API_TOKEN}" "${DOWNLOAD_URL}" -o "${AGENT_BIN}"; then

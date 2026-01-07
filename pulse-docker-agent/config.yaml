@@ -1,6 +1,6 @@
 name: "Pulse Unified Agent"
 slug: "pulse_docker_agent"
-version: "2.1.1"
+version: "2.1.2"
 description: "Unified Pulse monitoring agent for Home Assistant (Host + Docker) with auto-updates"
 url: "https://github.com/rcourtman/Pulse"
 
