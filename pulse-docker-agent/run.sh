@@ -115,7 +115,7 @@ else
         DOWNLOAD_URL="${PULSE_URL}/download/pulse-agent-linux-${ARCH}"
         
         bashio::log.info "Downloading from: ${DOWNLOAD_URL}"
-        if ! curl -fsSL "${DOWNLOAD_URL}" -o "${AGENT_BIN}"; then
+        if ! curl -fsSL -H "Authorization: Bearer ${API_TOKEN}" "${DOWNLOAD_URL}" -o "${AGENT_BIN}"; then
             bashio::log.error "Failed to download agent from ${DOWNLOAD_URL}"
             bashio::log.error "Please ensure the Pulse server is reachable and the URL is correct."
             exit 1
