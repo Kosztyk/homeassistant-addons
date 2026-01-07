@@ -1,13 +1,13 @@
 
  <img width="617" height="393" alt="image" src="https://github.com/user-attachments/assets/54ca36cf-2c74-4d33-bbef-44d9b877be0e" />
  
-# 🐧 Pulse Docker Agent – Home Assistant Add-on
+# 🐧 Pulse Unified Agent – Home Assistant Add-on
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/kosztyk/pulse-docker-agent-addon?style=flat-square)](https://github.com/kosztyk/pulse-docker-agent-addon)
 [![Docker Pulls](https://img.shields.io/docker/pulls/kosztyk/pulse-docker-agent?style=flat-square)](https://hub.docker.com/r/kosztyk/pulse-docker-agent)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-add--on-41BDF5?style=flat-square&logo=homeassistant&logoColor=white)
 
-A Home Assistant add-on that runs the **Pulse Docker Agent**, allowing your Home Assistant host and Docker containers to be monitored by the
+A Home Assistant add-on that runs the **Pulse Unified Agent**, allowing your Home Assistant host and Docker containers to be monitored by the
 [Pulse PVE Monitoring](https://github.com/rcourtman/Pulse) platform.
 
 ---
@@ -38,19 +38,20 @@ Pulse gives you:
 
 ## 🧩 What This Add-on Does
 
-This add-on installs and runs the **Pulse Docker Agent** on the same system where Home Assistant is running.  
+This add-on installs and runs the **Pulse Unified Agent** on the same system where Home Assistant is running.  
 It enables Pulse to collect metrics such as:
 
-- CPU, RAM, disk usage of the Docker host running Home Assistant  
+- CPU, RAM, disk usage, and temperatures of the Docker host running Home Assistant  
 - Status and metrics of Docker containers  
 - Extra remote Docker targets if configured
 
 Under the hood, the add-on:
 
-- Downloads the correct `pulse-docker-agent` binary for your architecture  
-- Reads configuration from the Home Assistant add-on options  
-- Exposes the Docker API (as per HA add-on permissions)  
-- Sends metrics to your Pulse server at the configured interval  
+- Downloads the `pulse-agent` binary directly from your **Pulse server** (ensuring compatibility)
+- Enables **Auto-Updates**: The agent will automatically update itself when a new version is released on your Pulse server
+- Reads configuration from the Home Assistant add-on options
+- Exposes the Docker API (as per HA add-on permissions)
+- Sends metrics to your Pulse server at the configured interval
 
 ---
 
@@ -65,7 +66,7 @@ The add-on exposes these options via the Home Assistant UI:
 | `api_token`     | ✅       | API token created in Pulse with `docker:report` scope |
 | `interval`      | ✅       | Report interval, e.g. `30s`, `60s` |
 | `log_level`     | ✅       | `debug`, `info`, `warn`, `error` |
-| `agent_version` | ✅       | Pulse agent version / tag to download |
+| `agent_version` | ❌       | (Optional) Pulse agent version to download from GitHub. Leave empty to use Pulse server + auto-updates. |
 | `extra_targets` | ✅       | Comma-separated list of extra Docker hosts |
 
 

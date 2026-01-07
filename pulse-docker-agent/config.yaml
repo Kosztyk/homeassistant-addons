@@ -1,7 +1,7 @@
-name: "Pulse Docker Agent"
+name: "Pulse Unified Agent"
 slug: "pulse_docker_agent"
-version: "1.0.0"
-description: "Pulse Docker monitoring agent for the Home Assistant Docker engine"
+version: "2.1.0"
+description: "Unified Pulse monitoring agent for Home Assistant (Host + Docker) with auto-updates"
 url: "https://github.com/rcourtman/Pulse"
 
 arch:
@@ -19,7 +19,7 @@ options:
   api_token: ""
   interval: "30s"
   log_level: "info"
-  agent_version: "4.36.1"
+  agent_version: ""
   extra_targets: ""
 
 schema:
@@ -27,5 +27,5 @@ schema:
   api_token: str
   interval: str
   log_level: list(info|debug|warn|error)
-  agent_version: str
+  agent_version: str?
   extra_targets: str
