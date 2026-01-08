@@ -12,11 +12,13 @@ PULSE_URL="$(bashio::config 'pulse_url')"
 API_TOKEN="$(bashio::config 'api_token')"
 INTERVAL="$(bashio::config 'interval')"
 LOG_LEVEL="$(bashio::config 'log_level')"
+
 if bashio::config.has_value 'agent_version'; then
     AGENT_VERSION="$(bashio::config 'agent_version')"
 else
     AGENT_VERSION=""
 fi
+
 EXTRA_TARGETS="$(bashio::config 'extra_targets')"
 
 if bashio::config.is_empty 'pulse_url'; then
@@ -34,7 +36,6 @@ if bashio::config.is_empty 'interval'; then
     bashio::log.warning "interval not set, defaulting to ${INTERVAL}"
 fi
 
-
 bashio::log.info "Using Pulse URL: ${PULSE_URL}"
 bashio::log.info "Reporting interval: ${INTERVAL}"
 bashio::log.info "Log level: ${LOG_LEVEL}"
@@ -45,9 +46,9 @@ bashio::log.info "Log level: ${LOG_LEVEL}"
 # -----------------------------------------------------------------------------
 ARCH_RAW="$(uname -m)"
 case "${ARCH_RAW}" in
-    x86_64)          ARCH="amd64" ;;
-    aarch64|arm64)   ARCH="arm64" ;;
-    *)               ARCH="amd64" ;;
+    x86_64)        ARCH="amd64" ;;
+    aarch64|arm64) ARCH="arm64" ;;
+    *)             ARCH="amd64" ;;
 esac
 
 # -----------------------------------------------------------------------------
@@ -55,7 +56,7 @@ esac
 # -----------------------------------------------------------------------------
 AGENT_BIN="/usr/local/bin/pulse-agent"
 
-# If agent_version is set, we use GitHub (legacy behavior or specific version pinned)
+# If agent_version is set, we use GitHub (pinned version)
 # If not set, we use the Pulse server to get the latest
 if [ -n "${AGENT_VERSION}" ]; then
     VERSION_FILE="/data/agent_version"
@@ -71,8 +72,8 @@ if [ -n "${AGENT_VERSION}" ]; then
     if [ "${NEED_DOWNLOAD}" = true ]; then
         TAG="${AGENT_VERSION}"
         case "${TAG}" in
-            v*) ;;
-            *)  TAG="v${TAG}" ;;
+            v*) ;;              # already has v prefix
+            *)  TAG="v${TAG}" ;;# add v prefix
         esac
 
         DOWNLOAD_URL="https://github.com/rcourtman/Pulse/releases/download/${TAG}/pulse-agent-${TAG}-linux-${ARCH}.tar.gz"
@@ -89,14 +90,17 @@ if [ -n "${AGENT_VERSION}" ]; then
         mkdir -p "${TMP_DIR}"
         tar -xzf "${TMP_TAR}" -C "${TMP_DIR}"
 
+        # NEW: handle current release layout: pulse-agent-linux-amd64 / pulse-agent-linux-arm64, etc.
         if [ -f "${TMP_DIR}/bin/pulse-agent" ]; then
             AGENT_SOURCE="${TMP_DIR}/bin/pulse-agent"
         else
-            AGENT_SOURCE="$(find "${TMP_DIR}" -name 'pulse-agent' | head -n 1 || true)"
+            # Look for any file starting with "pulse-agent"
+            AGENT_SOURCE="$(find "${TMP_DIR}" -type f \( -name 'pulse-agent' -o -name 'pulse-agent-*' \) | head -n 1 || true)"
         fi
 
         if [ -z "${AGENT_SOURCE}" ] || [ ! -f "${AGENT_SOURCE}" ]; then
-            bashio::log.error "Agent binary not found in archive."
+            bashio::log.error "Agent binary not found in archive. Contents were:"
+            ls -R "${TMP_DIR}" || true
             exit 1
         fi
 
@@ -131,7 +135,6 @@ fi
 export PULSE_URL="${PULSE_URL}"
 export PULSE_TOKEN="${API_TOKEN}"
 export PULSE_ENABLE_DOCKER="true"
-# Auto-update is enabled by default in the agent, but we can be explicit
 export PULSE_DISABLE_AUTO_UPDATE="false"
 
 # Optional multi-target string, e.g. "http://pulse1:7655|TOKEN1,http://pulse2:7655|TOKEN2"
