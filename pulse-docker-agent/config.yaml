@@ -1,6 +1,6 @@
 name: "Pulse Unified Agent"
 slug: "pulse_docker_agent"
-version: "2.1.3"
+version: "2.1.4"
 description: "Unified Pulse monitoring agent for Home Assistant (Host + Docker) with auto-updates"
 url: "https://github.com/rcourtman/Pulse"
 
@@ -21,6 +21,7 @@ options:
   log_level: "info"
   agent_version: ""
   extra_targets: ""
+  agent_hostname: ""        # NEW: override hostname (optional)
 
 schema:
   pulse_url: str
@@ -29,3 +30,4 @@ schema:
   log_level: list(info|debug|warn|error)
   agent_version: str?
   extra_targets: str
+  agent_hostname: str?      # NEW: optional in GUI
