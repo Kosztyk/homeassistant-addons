@@ -21,6 +21,13 @@ fi
 
 EXTRA_TARGETS="$(bashio::config 'extra_targets')"
 
+# NEW: optional hostname override
+if bashio::config.has_value 'agent_hostname'; then
+    AGENT_HOSTNAME="$(bashio::config 'agent_hostname')"
+else
+    AGENT_HOSTNAME=""
+fi
+
 if bashio::config.is_empty 'pulse_url'; then
     bashio::log.error "pulse_url is required but not set in add-on options."
     exit 1
@@ -40,6 +47,7 @@ bashio::log.info "Using Pulse URL: ${PULSE_URL}"
 bashio::log.info "Reporting interval: ${INTERVAL}"
 bashio::log.info "Log level: ${LOG_LEVEL}"
 [ -n "${EXTRA_TARGETS}" ] && bashio::log.info "Extra targets: ${EXTRA_TARGETS}"
+[ -n "${AGENT_HOSTNAME}" ] && bashio::log.info "Overriding hostname to: ${AGENT_HOSTNAME}"
 
 # -----------------------------------------------------------------------------
 # Determine architecture for download (amd64 / arm64)
@@ -90,7 +98,7 @@ if [ -n "${AGENT_VERSION}" ]; then
         mkdir -p "${TMP_DIR}"
         tar -xzf "${TMP_TAR}" -C "${TMP_DIR}"
 
-        # NEW: handle current release layout: pulse-agent-linux-amd64 / pulse-agent-linux-arm64, etc.
+        # Handle current release layout: pulse-agent-linux-amd64 / pulse-agent-linux-arm64, etc.
         if [ -f "${TMP_DIR}/bin/pulse-agent" ]; then
             AGENT_SOURCE="${TMP_DIR}/bin/pulse-agent"
         else
@@ -99,7 +107,7 @@ if [ -n "${AGENT_VERSION}" ]; then
         fi
 
         if [ -z "${AGENT_SOURCE}" ] || [ ! -f "${AGENT_SOURCE}" ]; then
-            bashio::log.error "Agent binary not found in archive. Contents were:"
+            bashio::log.error "Agent binary not found in archive. Listing contents:"
             ls -R "${TMP_DIR}" || true
             exit 1
         fi
@@ -135,7 +143,13 @@ fi
 export PULSE_URL="${PULSE_URL}"
 export PULSE_TOKEN="${API_TOKEN}"
 export PULSE_ENABLE_DOCKER="true"
+# Auto-update is enabled by default in the agent, but we can be explicit
 export PULSE_DISABLE_AUTO_UPDATE="false"
+
+# NEW: hostname override env var used by unified agent
+if [ -n "${AGENT_HOSTNAME}" ]; then
+    export PULSE_HOSTNAME="${AGENT_HOSTNAME}"
+fi
 
 # Optional multi-target string, e.g. "http://pulse1:7655|TOKEN1,http://pulse2:7655|TOKEN2"
 if [ -n "${EXTRA_TARGETS}" ]; then
@@ -149,5 +163,12 @@ fi
 # -----------------------------------------------------------------------------
 # Start the agent in the foreground
 # -----------------------------------------------------------------------------
-bashio::log.info "Starting pulse-agent with interval ${INTERVAL}"
-exec "${AGENT_BIN}" --interval "${INTERVAL}"
+CMD_ARGS=( "--interval" "${INTERVAL}" )
+
+# NEW: pass hostname override via CLI too (matches docs: --hostname / PULSE_HOSTNAME)
+if [ -n "${AGENT_HOSTNAME}" ]; then
+    CMD_ARGS+=( "--hostname" "${AGENT_HOSTNAME}" )
+fi
+
+bashio::log.info "Starting pulse-agent with interval ${INTERVAL}${AGENT_HOSTNAME:+ and hostname ${AGENT_HOSTNAME}}"
+exec "${AGENT_BIN}" "${CMD_ARGS[@]}"
