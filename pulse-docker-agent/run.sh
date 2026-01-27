@@ -21,7 +21,7 @@ fi
 
 EXTRA_TARGETS="$(bashio::config 'extra_targets')"
 
-# NEW: optional hostname override
+# Optional hostname override
 if bashio::config.has_value 'agent_hostname'; then
     AGENT_HOSTNAME="$(bashio::config 'agent_hostname')"
 else
@@ -43,6 +43,9 @@ if bashio::config.is_empty 'interval'; then
     bashio::log.warning "interval not set, defaulting to ${INTERVAL}"
 fi
 
+# Normalize Pulse URL: strip trailing slash to avoid double //
+PULSE_URL="${PULSE_URL%/}"
+
 bashio::log.info "Using Pulse URL: ${PULSE_URL}"
 bashio::log.info "Reporting interval: ${INTERVAL}"
 bashio::log.info "Log level: ${LOG_LEVEL}"
@@ -56,7 +59,7 @@ ARCH_RAW="$(uname -m)"
 case "${ARCH_RAW}" in
     x86_64)        ARCH="amd64" ;;
     aarch64|arm64) ARCH="arm64" ;;
-    *)             ARCH="amd64" ;;
+    *)             ARCH="amd64"; bashio::log.warning "Unknown arch '${ARCH_RAW}', defaulting to amd64" ;;
 esac
 
 # -----------------------------------------------------------------------------
@@ -98,11 +101,10 @@ if [ -n "${AGENT_VERSION}" ]; then
         mkdir -p "${TMP_DIR}"
         tar -xzf "${TMP_TAR}" -C "${TMP_DIR}"
 
-        # Handle current release layout: pulse-agent-linux-amd64 / pulse-agent-linux-arm64, etc.
+        # Handle layout: pulse-agent[-linux-amd64], etc.
         if [ -f "${TMP_DIR}/bin/pulse-agent" ]; then
             AGENT_SOURCE="${TMP_DIR}/bin/pulse-agent"
         else
-            # Look for any file starting with "pulse-agent"
             AGENT_SOURCE="$(find "${TMP_DIR}" -type f \( -name 'pulse-agent' -o -name 'pulse-agent-*' \) | head -n 1 || true)"
         fi
 
@@ -119,20 +121,28 @@ if [ -n "${AGENT_VERSION}" ]; then
     fi
 else
     # Always try to download the latest binary from the Pulse server if not present
-    # The agent itself will handle auto-updates once running
     if [ ! -x "${AGENT_BIN}" ]; then
         bashio::log.info "Agent binary not found, downloading latest from Pulse server..."
-        
-        # Pulse server provides binaries via /download/pulse-agent?arch=linux-<arch>
+
         DOWNLOAD_URL="${PULSE_URL}/download/pulse-agent?arch=linux-${ARCH}"
-        
+
         bashio::log.info "Downloading from: ${DOWNLOAD_URL}"
         if ! curl -fsSL -H "Authorization: Bearer ${API_TOKEN}" "${DOWNLOAD_URL}" -o "${AGENT_BIN}"; then
             bashio::log.error "Failed to download agent from ${DOWNLOAD_URL}"
-            bashio::log.error "Please ensure the Pulse server is reachable and the URL is correct."
+            bashio::log.error "Please ensure the Pulse server is reachable and the URL/token are correct."
             exit 1
         fi
         chmod +x "${AGENT_BIN}"
+
+        # --- Sanity check: ensure we actually got a Linux binary (ELF) ---
+        if ! head -c 4 "${AGENT_BIN}" | grep -q $'\x7fELF'; then
+            bashio::log.error "Downloaded file does not look like a Linux binary. This usually means an error page was returned."
+            bashio::log.error "Check that pulse_url and api_token are correct, and that /download/pulse-agent is enabled on the server."
+            bashio::log.error "First few bytes of file:"
+            head -c 80 "${AGENT_BIN}" | tr -d '\r' | sed 's/[^[:print:]]/./g' || true
+            exit 1
+        fi
+
         bashio::log.info "Successfully installed pulse-agent from Pulse server."
     fi
 fi
@@ -143,10 +153,9 @@ fi
 export PULSE_URL="${PULSE_URL}"
 export PULSE_TOKEN="${API_TOKEN}"
 export PULSE_ENABLE_DOCKER="true"
-# Auto-update is enabled by default in the agent, but we can be explicit
 export PULSE_DISABLE_AUTO_UPDATE="false"
 
-# NEW: hostname override env var used by unified agent
+# Hostname override via env
 if [ -n "${AGENT_HOSTNAME}" ]; then
     export PULSE_HOSTNAME="${AGENT_HOSTNAME}"
 fi
@@ -165,7 +174,7 @@ fi
 # -----------------------------------------------------------------------------
 CMD_ARGS=( "--interval" "${INTERVAL}" )
 
-# NEW: pass hostname override via CLI too (matches docs: --hostname / PULSE_HOSTNAME)
+# Hostname override also via CLI flag
 if [ -n "${AGENT_HOSTNAME}" ]; then
     CMD_ARGS+=( "--hostname" "${AGENT_HOSTNAME}" )
 fi
