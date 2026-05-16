@@ -8,6 +8,10 @@ arch:
   - amd64
   - aarch64
 
+build_from:
+  amd64: ghcr.io/home-assistant/amd64-base:3.21
+  aarch64: ghcr.io/home-assistant/aarch64-base:3.21
+
 startup: services
 init: false
 docker_api: true
