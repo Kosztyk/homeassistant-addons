@@ -1,16 +1,12 @@
 name: "Pulse Unified Agent"
 slug: "pulse_docker_agent"
-version: "2.1.6"
+version: "2.1.7"
 description: "Unified Pulse monitoring agent for Home Assistant (Host + Docker) with auto-updates"
 url: "https://github.com/rcourtman/Pulse"
 
 arch:
   - amd64
   - aarch64
-
-build_from:
-  amd64: ghcr.io/home-assistant/amd64-base:3.21
-  aarch64: ghcr.io/home-assistant/aarch64-base:3.21
 
 startup: services
 init: false
